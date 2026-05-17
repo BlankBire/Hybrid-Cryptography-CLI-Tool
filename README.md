@@ -84,7 +84,7 @@ The encrypted output uses a custom, deterministic binary layout for cross-platfo
 
 | Field | Size | Description |
 |---|---|---|
-| Key Length | 4 bytes | Big-endian `uint32` — byte count of the encrypted session key |
+| Key Length | 4 bytes | Big-endian `uint32` - byte count of the encrypted session key |
 | Encrypted Session Key | 512 bytes | 32-byte AES key, RSA-OAEP encrypted with SHA-256 |
 | Nonce | 12 bytes | Cryptographically random IV, unique per encryption |
 | Ciphertext + Tag | plaintext size + 16 B | AES-GCM output with appended authentication tag |
@@ -375,4 +375,4 @@ Hybrid-Cryptography-CLI-Tool/
 
 ## License
 
-MIT
+This project is licensed under the [MIT License](LICENSE).
