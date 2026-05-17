@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Build & distribution
+build/
+dist/
+*.egg-info/
+*.egg
+MANIFEST
+
+# Testing & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ========== Project-specific ==========
+
+# Key files — NEVER commit private keys
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Encrypted output files
+*.hcrypt
+
+# Demo / scratch files
+demo_*/
+scratch/
