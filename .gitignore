@@ -48,3 +48,6 @@ Thumbs.db
 # Demo / scratch files
 demo_*/
 scratch/
+
+# Claude
+CLAUDE.md
