@@ -40,15 +40,19 @@ This is exactly how PGP, TLS, and Signal work under the hood.
 ### Encryption Flow
 
 ```
-                     os.urandom(32)
-                          │
-                          ▼
-Plaintext ──► [zlib compress] ──► [ AES-GCM-256 ] ──► Ciphertext + Auth Tag ──┐
-  (chunk         (per chunk)             │                   (per chunk)       │
-  64 KB each)                      Session Key                                 │
-                                         │                                     ▼
-                                         └──► [ RSA-4096-OAEP ] ──► Encrypted Key ──► .hcrypt
-                                               (Public Key)
+                                      os.urandom(32)
+                                            │
+                         ┌──────────────────┴──────────────────┐
+                         ▼                                     ▼
+Plaintext ──► [zlib compress] ──► [ AES-GCM-256 ] ──► [ RSA-4096-OAEP ]
+  (64 KB         (per chunk)        (Session Key)       (Public Key)
+  chunks)                │                                     │
+                         ▼                                     ▼
+                 Ciphertext + Auth Tag                  Encrypted Key
+                      (per chunk)                              │
+                         └──────────────────┬──────────────────┘
+                                            ▼
+                                        .hcrypt
 ```
 
 1. Generate a random 256-bit **session key** (ephemeral - lives only for this operation).
@@ -60,13 +64,12 @@ Plaintext ──► [zlib compress] ──► [ AES-GCM-256 ] ──► Cipherte
 ### Decryption Flow
 
 ```
-.hcrypt ──► Encrypted Key ──► [ RSA-4096-OAEP (Private Key) ] ──► Session Key ──┐
-                                                                                 │
-        ──► Chunk 0 ─────────────────► [ AES-GCM-256 ] ──► decompress ──► plain │
-        ──► Chunk 1 ─────────────────► [ AES-GCM-256 ] ──► decompress ──► plain │◄─┘
-        ──► ...                                                                  │
-        ──► Sentinel (0x00000000) ──► stop                                      ▼
-                                                               Original File ✓
+.hcrypt ──┬──► Encrypted Key ──► [ RSA-4096-OAEP ] ──► Session Key
+          │                       (Private Key)        (used below)
+          ├──► Chunk 0 ──► [ AES-GCM-256 ] ──► decompress ──► plaintext
+          ├──► Chunk 1 ──► [ AES-GCM-256 ] ──► decompress ──► plaintext
+          ├──► ...
+          └──► Sentinel (0x00000000) ──► stop ──► Original File ✓
 ```
 
 An attacker who intercepts the `.hcrypt` file gets nothing, the session key is locked behind the recipient's private key, which never leaves their machine. Each chunk has an independent authentication tag, so tampering with any byte triggers an `InvalidTag` error before any plaintext is written to disk.
